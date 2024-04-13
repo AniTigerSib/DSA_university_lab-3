@@ -1,34 +1,65 @@
 #include "search.h"
 
-int jumpSearch(int* arr, int x, int n) {
+int JumpSearch(int* data, int x, int size) {
     // Finding block size to be jumped
-    int step = sqrt(n);
+    int step = sqrt(size);
 
     // Finding the block where element is
     // present (if it is present)
     int prev = 0;
-    while (arr[min(step, n)-1] < x)
-    {
+    while (data[min(step, size) - 1] < x) {
         prev = step;
-        step += sqrt(n);
-        if (prev >= n)
-            return -1;
+        step += sqrt(size);
+        if (prev >= size) return -1;
     }
 
     // Doing a linear search for x in block
     // beginning with prev.
-    while (arr[prev] < x)
-    {
+    while (data[prev] < x) {
         prev++;
- 
+
         // If we reached next block or end of
         // array, element is not present.
-        if (prev == min(step, n))
-            return -1;
+        if (prev == min(step, size)) return -1;
     }
     // If element is found
-    if (arr[prev] == x)
-        return prev;
+    if (data[prev] == x) return prev;
 
+    return -1;
+}
+
+int BinarySearch(int* data, int x, int size) {
+    int l = 0;
+    int r = size - 1;
+    int mid;
+
+    while (l <= r) {
+        mid = l + (r - l) / 2;
+
+        if (data[mid] == x) return mid;
+
+        if (data[mid] < x) {
+            l = mid + 1;
+        } else {
+            r = mid - 1;
+        }
+    }
+
+    return -1;
+}
+
+int InterpolationSearch(int* data, int x, int size) {
+    int l = 0;
+    int r = size - 1;
+    int pos = l + x * (r - l) / (data[r] - data[l]);
+    for (; l <= r; pos = l + data[pos] * (r - l) / (data[r] - data[l])) {
+        if (data[pos] == x) return pos;
+        
+        if (x < data[pos]) {
+            r = pos - 1;
+        } else {
+            l = pos + 1;
+        }
+    }
     return -1;
 }

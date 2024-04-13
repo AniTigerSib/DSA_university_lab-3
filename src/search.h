@@ -5,6 +5,8 @@
 
 #define min(a,b) ((a) < (b) ? (a) : (b))
 
-int jumpSearch(int* arr, int x, int n);
+int JumpSearch(int* data, int x, int size);
+int BinarySearch(int* data, int x, int size);
+int InterpolationSearch(int* data, int x, int size);
 
 #endif
