@@ -1,11 +1,11 @@
 CPP=g++
 CFLAGS:=-Wall -Werror -Wextra -g -c
 FOLDER=../build/
-OBJS=$(addprefix $(FOLDER),main.o sort.o)
+OBJS=$(addprefix $(FOLDER),main.o)
 
 all:
 
-build: main.o sort.o
+build: main.o
 	$(CPP) $(OBJS) -o $(FOLDER)Search
 	$(MAKE) clean_objs
 

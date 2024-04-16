@@ -1,12 +1,8 @@
 #include "main.h"
 
-#include <algorithm>
-#include <cstddef>
 #include <iostream>
-#include <random>
 
 #include "search.h"
-#include "sort.h"
 
 using namespace std;
 
@@ -14,8 +10,9 @@ int g_size_of_seq = 0;
 
 int g_func_to_test_num = 0;
 // 0 - Jump search
-// 1 - Binary search
-// 2 - Interpolation search
+// 1 - Jump two-level search
+// 2 - Binary search
+// 3 - Interpolation search
 
 int g_situation_of_search = 0;
 // 0 - does not exist
@@ -23,79 +20,94 @@ int g_situation_of_search = 0;
 // 2 - value from center
 // 3 - value from end
 
-int g_amount_of_comparations = 0;
-
-const Test g_functions_to_test[] = {JumpSearch, BinarySearch, InterpolationSearch};
+int g_amount_of_comparations = 0; 
 
 int main(int argc, char** argv) {
-    if (argc != 4) {
+    if (argc != 3) {
         cout << "Not correct amount of command line params\n";
     } else {
         g_size_of_seq = atoi(argv[1]);
         g_func_to_test_num = atoi(argv[2]);
-        g_situation_of_search = atoi(argv[3]);
-        if (g_size_of_seq > 0 && g_func_to_test_num >= 0 && g_func_to_test_num <= 2 && g_situation_of_search >= 0 &&
-            g_situation_of_search <= 3) {
-            Tests();
-        }
+        int* sequence = (int*)calloc(g_size_of_seq, sizeof(int));
+        IntegerSortedSquenceGen(sequence, g_size_of_seq);
+        TestingFunction(sequence, g_size_of_seq);
+        // if (g_size_of_seq > 0 && g_func_to_test_num >= 0 && g_func_to_test_num <= 2 &&
+        //     g_situation_of_search >= 0 && g_situation_of_search <= 3) {
+        //     Tests();
+        // }
     }
     return 0;
 }
 
 void Tests() {
-    int* sequence = (int*)calloc(g_size_of_seq, sizeof(int));
-    GenerateRandomSequence(sequence, g_size_of_seq, MINIMAL_VALUE, MAXIMAL_VALUE);
-    MSD(sequence, g_size_of_seq);
-    TestingFunction(sequence, g_size_of_seq, g_functions_to_test[g_func_to_test_num]);
-    free(sequence);
+    int step = g_size_of_seq;
+    for (int i = 0; i < TEST_CASES_NUM; i++) {
+        cout << g_size_of_seq;
+        for (int j = 0; j < SITUATIONS_OF_SEARCH_AMOUNT; j++) {
+            g_situation_of_search = j;
+            int* sequence = (int*)calloc(g_size_of_seq, sizeof(int));
+            IntegerSortedSquenceGen(sequence, g_size_of_seq);
+            TestingFunction(sequence, g_size_of_seq);
+            free(sequence);
+            cout.flush();
+        }
+        cout << "\n";
+        g_size_of_seq += step;
+    }
 }
 
-void TestingFunction(int* data, int size, Test func_to_test) {
+void TestingFunction(int* data, int size) {
     int to_search = 0;
     switch (g_situation_of_search) {
         case 0:
             to_search = -1;
             break;
         case 1:
-            to_search = data[0];
+            to_search = data[1000];
             break;
         case 2:
             to_search = data[size / 2];
             break;
         case 3:
-            to_search = data[size - 1];
+            to_search = data[size - 1001];
             break;
         default:
             break;
     }
     g_amount_of_comparations = 0;
-    cout << func_to_test(data, to_search, size) << "\n" << g_amount_of_comparations << "\n";
+    switch (g_func_to_test_num) {
+    case 0:
+        JumpSearch(data, to_search, size);
+        cout << g_amount_of_comparations << "\t";
+        break;
+    case 1:
+        cout << JumpSearch2ndLevel(data, to_search, size) << '\n';
+        cout << g_amount_of_comparations << "\t";
+        break;
+    case 2:
+        BinarySearch(data, to_search, size);
+        cout << g_amount_of_comparations << "\t";
+        break;
+    case 3:
+        InterpolationSearch(data, 0, size - 1, to_search);
+        cout << g_amount_of_comparations << "\t";
+        break;
+    default:
+        break;
+    }
 }
 
-void GenerateRandomSequence(int* data, size_t size, int min_value, int max_value) {
-    // Генератор случайных чисел
-    std::random_device rd;
-    std::mt19937 gen(rd());
-
-    // Распределение
-    using Dist = std::uniform_int_distribution<int>;
-
-    Dist dist(min_value, max_value);
-
-    // Генерация случайных чисел
-    for (size_t i = 0; i < size; ++i) {
-        data[i] = dist(gen);
+void IntegerSortedSquenceGen(int *sequence, int lenght) {
+    for (int i = 0; i < lenght; i++) {
+        sequence[i] = i;
     }
-
-    // Перемешивание
-    std::shuffle(data, data + size, gen);
 }
 
 // Searching algorythms
 
 int JumpSearch(int* data, int x, int size) {
     // Finding block size to be jumped
-    int step = sqrt(size);
+    int step = step(size);
 
     // Finding the block where element is
     // present (if it is present)
@@ -103,7 +115,7 @@ int JumpSearch(int* data, int x, int size) {
     while (data[min(step, size) - 1] < x) {
         g_amount_of_comparations++;
         prev = step;
-        step += sqrt(size);
+        step += step(size);
         if (prev >= size) return -1;
     }
     g_amount_of_comparations++;
@@ -125,6 +137,20 @@ int JumpSearch(int* data, int x, int size) {
     return -1;
 }
 
+int JumpSearch2ndLevel(int* data, int x, int size) {
+    int step = sqrt(size);
+
+    int prev = 0;
+    while (data[min(prev + step, size) - 1] < x) {
+        g_amount_of_comparations++;
+        prev += step;
+        if (prev >= size) return -1;
+    }
+    g_amount_of_comparations++;
+
+    return JumpSearch(data + prev, x, step);
+}
+
 int BinarySearch(int* data, int x, int size) {
     int l = 0;
     int r = size - 1;
@@ -142,21 +168,32 @@ int BinarySearch(int* data, int x, int size) {
         }
     }
 
-
     return -1;
 }
 
-int InterpolationSearch(int* data, int x, int size) {
-    int l = 0;
-    int r = size - 1;
-    int pos = l + x * (r - l) / (data[r] - data[l]);
-    for (; l <= r; pos = l + data[pos] * (r - l) / (data[r] - data[l])) {
-        if (data[pos] == x) return pos;
-        
-        if (x < data[pos]) {
-            r = pos - 1;
+int InterpolationSearch(int* data, int lo, int hi, int x) {
+    int pos;
+
+    // Since array is sorted, an element present
+    // in array must be in range defined by corner
+    if (lo <= hi && x >= data[lo] && x <= data[hi]) {
+        // Probing the position with keeping
+        // uniform distribution in mind.
+        pos = lo + (((double)(hi - lo) / (data[hi] - data[lo])) * (x - data[lo]));
+
+        g_amount_of_comparations++;
+        // Condition of target found
+        if (data[pos] == x) {
+            return pos;
+        }
+
+        g_amount_of_comparations++;
+        if (data[pos] < x) {
+            // If x is larger, x is in right sub array
+            return InterpolationSearch(data, pos + 1, hi, x);
         } else {
-            l = pos + 1;
+            // If x is smaller, x is in left sub array
+            return InterpolationSearch(data, lo, pos - 1, x);
         }
     }
     return -1;

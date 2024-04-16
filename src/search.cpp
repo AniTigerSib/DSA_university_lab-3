@@ -28,6 +28,18 @@ int JumpSearch(int* data, int x, int size) {
     return -1;
 }
 
+int JumpSearch2ndLevel(int* data, int x, int size) {
+    int step = sqrt(size);
+
+    int prev = 0;
+    while (data[min(prev + step, size) - 1] < x) {
+        prev += step;
+        if (prev >= size) return -1;
+    }
+
+    return JumpSearch(data + prev, x, step);
+}
+
 int BinarySearch(int* data, int x, int size) {
     int l = 0;
     int r = size - 1;
