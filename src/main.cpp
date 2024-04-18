@@ -28,21 +28,18 @@ int main(int argc, char** argv) {
     } else {
         g_size_of_seq = atoi(argv[1]);
         g_func_to_test_num = atoi(argv[2]);
-        int* sequence = (int*)calloc(g_size_of_seq, sizeof(int));
-        IntegerSortedSquenceGen(sequence, g_size_of_seq);
-        TestingFunction(sequence, g_size_of_seq);
-        // if (g_size_of_seq > 0 && g_func_to_test_num >= 0 && g_func_to_test_num <= 2 &&
-        //     g_situation_of_search >= 0 && g_situation_of_search <= 3) {
-        //     Tests();
-        // }
+        if (g_size_of_seq > 0 && g_func_to_test_num >= 0 && g_func_to_test_num <= 2 &&
+            g_situation_of_search >= 0 && g_situation_of_search <= 3) {
+            Tests();
+        }
     }
     return 0;
 }
 
 void Tests() {
-    int step = g_size_of_seq;
+    int step = g_size_of_seq / 2;
     for (int i = 0; i < TEST_CASES_NUM; i++) {
-        cout << g_size_of_seq;
+        cout << g_size_of_seq << '\t';
         for (int j = 0; j < SITUATIONS_OF_SEARCH_AMOUNT; j++) {
             g_situation_of_search = j;
             int* sequence = (int*)calloc(g_size_of_seq, sizeof(int));
@@ -63,13 +60,13 @@ void TestingFunction(int* data, int size) {
             to_search = -1;
             break;
         case 1:
-            to_search = data[1000];
+            to_search = data[g_size_of_seq / 10];
             break;
         case 2:
             to_search = data[size / 2];
             break;
         case 3:
-            to_search = data[size - 1001];
+            to_search = data[g_size_of_seq - (g_size_of_seq / 10)];
             break;
         default:
             break;
@@ -81,7 +78,7 @@ void TestingFunction(int* data, int size) {
         cout << g_amount_of_comparations << "\t";
         break;
     case 1:
-        cout << JumpSearch2ndLevel(data, to_search, size) << '\n';
+        JumpSearch2ndLevel(data, to_search, size);
         cout << g_amount_of_comparations << "\t";
         break;
     case 2:

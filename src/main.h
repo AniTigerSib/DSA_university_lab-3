@@ -1,6 +1,6 @@
 #include <sys/types.h>
 
-#define TEST_CASES_NUM 10
+#define TEST_CASES_NUM 19
 #define SITUATIONS_OF_SEARCH_AMOUNT 4
 #define MINIMAL_VALUE 1
 #define MAXIMAL_VALUE 1e8

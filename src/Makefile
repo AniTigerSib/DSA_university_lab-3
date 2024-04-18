@@ -11,10 +11,7 @@ build: main.o
 
 rebuild: clean build
 
-main.o: main.cpp main.h sort.h search.h
-	$(CPP) $(CFLAGS) $< -o $(FOLDER)$@
-
-sort.o: sort.cpp sort.h
+main.o: main.cpp main.h search.h
 	$(CPP) $(CFLAGS) $< -o $(FOLDER)$@
 
 search.o: search.cpp search.h
